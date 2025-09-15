@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HJH | SBL TERMINAL</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: #111;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0,200,255,0.5);
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #00cfff;
+      border-radius: 5px;
+      text-align: center;
+    }
+    .btn {
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .btn-primary {
+      background: #00cfff;
+      color: #000;
+      font-weight: bold;
+    }
+    #status {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>HJH SMS TERMINAL</h2>
+    <input type="text" id="number" placeholder="📞 Enter Target Number (e.g., 923001234567)" />
+    <button class="btn btn-primary" id="sendBtn">
+      <i class="fas fa-paper-plane"></i> Send
+    </button>
+    <div id="status"></div>
+  </div>
+
+  <script>
+    const btn = document.getElementById("sendBtn");
+    const status = document.getElementById("status");
+
+    btn.addEventListener("click", async () => {
+      const number = document.getElementById("number").value.trim();
+      if (!number) {
+        status.innerHTML = '<span style="color:red">❌ Number required</span>';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = "⏳ Sending...";
+      status.innerHTML = "Please wait...";
+
+      try {
+        const response = await fetch("/api/handler", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ number }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          status.innerHTML = `<span style="color:lime">✅ Response: ${data.result}</span>`;
+        } else {
+          status.innerHTML = `<span style="color:red">❌ ${data.error || "Failed"}</span>`;
+        }
+      } catch (err) {
+        status.innerHTML = '<span style="color:red">❌ Server error</span>';
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send';
+    });
+  </script>
+</body>
+</html>
